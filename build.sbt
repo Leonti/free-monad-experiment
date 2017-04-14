@@ -8,6 +8,9 @@ lazy val root = (project in file(".")).
       version      := "0.1.0-SNAPSHOT"
     )),
     name := "Hello",
+    resolvers += Resolver.bintrayRepo("projectseptemberinc", "maven"),
+    scalacOptions := Seq("-unchecked", "-deprecation", "-feature", "-Xfatal-warnings", "-Ypartial-unification", "-encoding", "utf8"),
     libraryDependencies += scalaTest % Test,
-    libraryDependencies += "org.typelevel"   %% "cats"              % "0.9.0"
+    libraryDependencies += "org.typelevel"   %% "cats" % "0.9.0",
+    libraryDependencies += "com.projectseptember" %% "freek" % "0.6.7"
   )
