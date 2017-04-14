@@ -12,5 +12,6 @@ lazy val root = (project in file(".")).
     scalacOptions := Seq("-unchecked", "-deprecation", "-feature", "-Xfatal-warnings", "-Ypartial-unification", "-encoding", "utf8"),
     libraryDependencies += scalaTest % Test,
     libraryDependencies += "org.typelevel"   %% "cats" % "0.9.0",
-    libraryDependencies += "com.projectseptember" %% "freek" % "0.6.7"
+    libraryDependencies += "com.projectseptember" %% "freek" % "0.6.7",
+    addCompilerPlugin("org.spire-math" % "kind-projector" % "0.9.3" cross CrossVersion.binary)
   )

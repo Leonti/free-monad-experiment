@@ -1,6 +1,7 @@
 package example
 
 import cats.free._
+import cats.instances.either._
 import cats.{Id, ~>}
 import freek._
 
@@ -16,7 +17,7 @@ object FreeMonadsFreek {
 
   // Receipts
   sealed trait ReceiptOp[A]
-  case class GetReceipt(id: String)                          extends ReceiptOp[Either[Error, ReceiptEntity]]
+  case class GetReceipt(id: String) extends ReceiptOp[Either[Error, ReceiptEntity]]
 
   // Users
   sealed trait UserOp[A]
@@ -25,23 +26,12 @@ object FreeMonadsFreek {
   type PRG = ReceiptOp :|: UserOp :|: NilDSL
   val PRG = DSL.Make[PRG]
 
-//  type O = Either[Error, ?] :&: Bulb
-/*
-Compiling 1 Scala source to /home/leonti/development/free-monad-experiment/target/scala-2.12/classes...
-[error] /home/leonti/development/free-monad-experiment/src/main/scala/example/FreeMonadsFreek.scala:30: not found: type ?
-[error]   type O = Either[Error, ?] :&: Bulb
-[error]                          ^
-[error] /home/leonti/development/free-monad-experiment/src/main/scala/example/FreeMonadsFreek.scala:30: Either[example.FreeMonadsFreek.Error,<error>] takes no type parameters, expected: one
-[error]   type O = Either[Error, ?] :&: Bulb
-[error]            ^
-[error] two errors found
- */
+  type O = Either[Error, ?] :&: Bulb
 
-  def programFreek(): Free[PRG.Cop, String] =
+  val program =
     for {
-      // this one is still Either[Error, User]
-      user <- GetUser("user_id").freek[PRG]
-      receipt <- GetReceipt("test " + user.isLeft).freek[PRG]
+      user <- GetUser("user_id").freek[PRG].onionT[O]
+      receipt <- GetReceipt("test " + user).freek[PRG].onionT[O]
     } yield "test"
 
   object TestReceiptInterpreter extends (ReceiptOp ~> Id) {
@@ -56,7 +46,7 @@ Compiling 1 Scala source to /home/leonti/development/free-monad-experiment/targe
     }
   }
 
-  val interpreterFreek: Interpreter[PRG.Cop, Id] = TestReceiptInterpreter :&: TestUserInterpreter
+  val interpreters: Interpreter[PRG.Cop, Id] = TestReceiptInterpreter :&: TestUserInterpreter
 
-  val resultFreek: String = programFreek.interpret(interpreterFreek)
+  val result: Either[Error, String] = program.value.interpret(interpreters)
 }
